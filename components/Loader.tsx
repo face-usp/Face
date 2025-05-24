@@ -28,9 +28,9 @@ export default function Loader() {
             transition={{ delay: 1.5, duration: 1 }}
           >
             <motion.img
-              src="/next.svg"
+              src="/happiness.png"
               alt="Logo"
-              className="w-32 h-32"
+              className="w-16 h-16"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 1 }}
