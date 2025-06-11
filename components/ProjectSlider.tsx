@@ -1,32 +1,65 @@
 "use client"
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
-const dummyData = Array.from({ length: 10 }, (_, i) => ({
+interface ProjectItem {
   profile: {
-    firstname: "Amandy",
-    lastname: "Rousure",
-    HireRating: 5,
-    profilePhoto: "/happiness_variant.png",
-  },
+    firstname: string;
+    lastname: string;
+    HireRating: number;
+    profilePhoto: string;
+  };
   project: {
-    projectTitle: `Make Birthday Video ${i + 1}`,
-    projectDesc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    bidPrice: "$100",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    isExpired: false,
-  },
-}));
+    projectTitle: string | number;
+    projectDesc: string;
+    bidPrice: string;
+    createdAt: string;
+    updatedAt: string;
+    isExpired: boolean;
+  };
+}
+
+
 
 export default function ProjectSlider() {
+  const [data, setData] = useState<ProjectItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const visibleCount = 3; // How many cards to show per view
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch("/api/slider"); 
+      const json = await res.json();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped = json.map((item:any,index:number) => ({
+        profile: {
+          firstname: "User", // Replace with real values if available
+          lastname: "Anonymous",
+          HireRating: 5,
+          profilePhoto: "/happiness_variant.png",
+        },
+        project: {
+          projectTitle: index+1,
+          projectDesc: item.query_hire,
+          bidPrice: `$${item.bid_price}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isExpired: false,
+        },
+      }));
+
+      setData(mapped);
+    };
+
+    fetchData();
+  }, []);
+
+
   const hasPrevious = currentIndex > 0;
-  const hasMore = currentIndex + visibleCount < dummyData.length;
+  const hasMore = currentIndex + visibleCount < data.length;
 
   const prevSlide = () => {
     if (hasPrevious) setCurrentIndex((prev) => prev - 1);
@@ -36,7 +69,7 @@ export default function ProjectSlider() {
     if (hasMore) setCurrentIndex((prev) => prev + 1);
   };
 
-  const visibleItems = dummyData.slice(currentIndex, currentIndex + visibleCount);
+  const visibleItems = data.slice(currentIndex, currentIndex + visibleCount);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
@@ -57,11 +90,11 @@ export default function ProjectSlider() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 transition-all duration-300">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {visibleItems.map((item, index) => (
           <div
             key={index}
-            className="border border-gray-300 rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow duration-300"
+            className="border border-gray-300 rounded-lg overflow-hidden shadow hover:shadow-lg"
           >
             <div className="h-40 bg-gray-100">
               <Image
